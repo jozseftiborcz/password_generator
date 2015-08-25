@@ -1,8 +1,5 @@
-import java.security.Security;
-import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.NoSuchAlgorithmException;
-import java.util.Set;
 
 public class PasswordGenerator {
     static String PasswordChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
