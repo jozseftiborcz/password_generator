@@ -1,17 +1,18 @@
+import java.security.Security;
+import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.NoSuchAlgorithmException;
+import java.util.Set;
 
 public class PasswordGenerator {
-    static String PasswordChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    static String UppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    static String LowercaseChars = "abcdefghijklmnopqrstuvwxyz";
-    static String DigitChars = "0123456789";
+    private static String PASSWORD_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static String UPPERCASE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static String LOWERCASE_CHARS = "abcdefghijklmnopqrstuvwxyz";
+    private static String DIGIT_CHARS = "0123456789";
 
-    private int ReinitializeGeneratorAfter = 10;
-    private int GeneratedPasswordsCount = 0;
-    private SecureRandom sr;
     private int passwordLength = 10;
     private String passwordPolicy = "uulldd";
+    private SecureRandom sr;
 
     public PasswordGenerator() {
     }
@@ -21,21 +22,20 @@ public class PasswordGenerator {
         this.passwordPolicy = passwordPolicy;
     }
 
-
     private String getCharset(char charsetType) {
         switch (charsetType) {
-        case 'u': return UppercaseChars;
-        case 'l': return LowercaseChars;
-        case 'd': return DigitChars;
-        case '\u0000': return PasswordChars;
+        case 'u': return UPPERCASE_CHARS;
+        case 'l': return LOWERCASE_CHARS;
+        case 'd': return DIGIT_CHARS;
+        case '\u0000': return PASSWORD_CHARS;
         default:
-            throw new RuntimeException("Invalid program state");
+            throw new IllegalArgumentException("Invalid program state");
         }
     }
 
     private char[] calculatePolicyPositions() {
-        char[] fixedPolicyPositions = new char[passwordLength];
-        StringBuffer passwordPolicy = new StringBuffer(this.passwordPolicy);
+        final char[] fixedPolicyPositions = new char[passwordLength];
+        final StringBuilder passwordPolicy = new StringBuilder(this.passwordPolicy);
         int stepsToGo = this.passwordPolicy.length();
         while (stepsToGo>0) {
             int i = sr.nextInt(passwordLength);
@@ -49,14 +49,10 @@ public class PasswordGenerator {
     }
 
     public String generate() throws NoSuchAlgorithmException {
-        if (sr==null || ++GeneratedPasswordsCount > ReinitializeGeneratorAfter) {
-            GeneratedPasswordsCount = 0;
-            sr = SecureRandom.getInstance("SHA1PRNG");
-        }
+        sr = SecureRandom.getInstance("SHA1PRNG");
+        final char[] fixedPolicyPositions = calculatePolicyPositions();
 
-        char[] fixedPolicyPositions = calculatePolicyPositions();
-
-        StringBuffer password = new StringBuffer();
+        final StringBuilder password = new StringBuilder();
         for(int i = 0; i<passwordLength; i++) {
             String passwordChars = getCharset(fixedPolicyPositions[i]);
             password.append(passwordChars.charAt(sr.nextInt(passwordChars.length())));
@@ -68,7 +64,7 @@ public class PasswordGenerator {
         try {
             PasswordGenerator pg = new PasswordGenerator();
 
-            for(int i=0; i<100000; i++)
+            for(int i=0; i<1000; i++)
                 System.out.println(pg.generate());
         }
         catch (NoSuchAlgorithmException e) {
